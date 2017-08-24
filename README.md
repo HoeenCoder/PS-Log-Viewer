@@ -1,7 +1,7 @@
 Pokemon Showdown Log Viewer
 ========================================================================
 
-A Node js Log Viewer for Pokemon Showdown.
+A Node js log viewer for Pokemon Showdown.
 
 Setup
 ------------------------------------------------------------------------
