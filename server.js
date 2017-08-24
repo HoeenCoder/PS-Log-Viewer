@@ -39,7 +39,7 @@ try {
 	Config = require('./config-example.js');
 }
 try {
-	if (fs.accessSync(Config.serverDir + 'logs/'));
+	fs.accessSync(Config.serverDir + 'logs/');
 } catch (e) {
 	console.error('No logs found! Is the server file path set correctly? Couldn\'t find logs at "' + Config.serverDir + 'logs/"');
 	process.exit(1);
@@ -82,7 +82,7 @@ function canView(room, id) {
 		room = Rooms[existingRooms.indexOf(room)];
 		if (room.isPrivate && room.title !== 'Staff' && rank === '%') return false;
 		if (room.isPrivate === true && room.title !== 'Staff' && rank === '@') return false;
-		if (room.modjoin && (RANK_ORDER.indexOf(rank) < RANK_ORDER.indexOf(room.modjoin))) return false;
+		if (room.modjoin && (RANK_ORDER.indexOf(rank) < RANK_ORDER.indexOf(room.modjoin)) && rank !== '~') return false;
 	} else {
 		if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room)) return false;
 		if (room.startsWith('groupchat-')) return true;
@@ -297,11 +297,6 @@ io.on('connection', function(socket) {
 				socket.emit('adminReply', 'The log-viewer server has been updated.');
 				UPDATE_LOCK = false;
 			});
-		}
-	});
-	socket.on('bash', function() {
-		if (authSockets[socket.id] && authSockets[socket.id].rank === '~') {
-
 		}
 	});
 
