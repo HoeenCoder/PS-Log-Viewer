@@ -1,7 +1,7 @@
 Pokemon Showdown Log Viewer
 ========================================================================
 
-A Node js log viewer for Pokemon Showdown.
+A Node js Log Viewer for Pokemon Showdown.
 
 Setup
 ------------------------------------------------------------------------
@@ -21,7 +21,7 @@ Use
 2. Use the token to login and view logs. Select the room's logs you want to view, then what month and day. Use the `Next Day` and `Previous Day` to quickly switch between days.
 3. Pokemon-Showdown Server Admins Only! Use `Reload Rooms` to reload the log viewers copy of `chatrooms.json`. Use `Update log-viewer Server` to use git to get the latest version of this log viewer (requires that you used git to clone this). Use `Restart log-viewer Server` to stop the server.
 
-Troubleshoting / FAQ
+Troubleshooting / FAQ
 ------------------------------------------------------------------------
 
 Q: My token is always invalid no matter how many times I re-generate it.
