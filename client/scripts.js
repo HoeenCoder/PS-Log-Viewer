@@ -1,5 +1,5 @@
 var socket = io({
-	reconnection: false
+	reconnection: false,
 });
 var rank = '';
 var name = '';
@@ -7,9 +7,9 @@ var token = '';
 var rooms = {};
 var curRoom = '';
 var curMonth = '',
-	monthData = [];
+monthData = [];
 var curDay = '',
-	dayData = [];
+dayData = [];
 
 socket.on('authValid', function(username, json) {
 	name = username;
@@ -48,7 +48,7 @@ socket.on('logOnly', function(msg, type) {
 	if (!type || !(type in {
 			"log": 1,
 			"warn": 1,
-			"error": 1
+			"error": 1,
 		})) type = 'log';
 	console[type](msg);
 });
