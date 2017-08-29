@@ -47,7 +47,7 @@ exports.commands = {
 		json[token] = {
 			name: user.name,
 			expires: Date.now(),
-			ip: user.latestIp
+			ip: user.latestIp,
 		};
 		FS('config/log-tokens.json').writeSync(JSON.stringify(json));
 		self.sendReply('Your token was generated!');
