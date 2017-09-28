@@ -1,7 +1,8 @@
 var socket = io({
 	reconnection: false
 });
-var rank = '';
+var rank = '',
+	roomRank = '';
 var name = '';
 var token = '';
 var rooms = {};
@@ -12,8 +13,13 @@ var curDay = '',
 	dayData = [];
 
 socket.on('authValid', function(username, json) {
-	name = username;
-	rank = name.substring(0, 1);
+	rank = username.substring(0, 1);
+	if (['+', '%', '@', '&', '~'].indexOf(rank) === -1) rank = '';
+	if (rank) {
+		name = username.substring(1);
+	} else {
+		name = username;
+	}
 	try {
 		rooms = JSON.parse(json);
 	} catch (e) {
@@ -53,8 +59,9 @@ socket.on('logOnly', function(msg, type) {
 	console[type](msg);
 });
 
-socket.on('pickMonth', function(data) {
+socket.on('pickMonth', function(data, rank) {
 	monthData = JSON.parse(data);
+	roomRank = rank;
 	buildPage('month', JSON.parse(data));
 });
 
@@ -130,7 +137,9 @@ function shiftDay(direction) {
 }
 
 function buildPage(type, data, options) {
-	var out = '<span class="header">SpacialGaze Log Viewer</span><br /><br />Your logged in as ' + name + '.<br /><br />';
+	var out = '<span class="header">SpacialGaze Log Viewer</span><br /><br />Your logged in as ' + rank + name;
+	if (type && roomRank) out += ' ' + roomRank + name + ' in ' + curRoom; 
+	out += '.<br /><br />';
 	if (rank === '~') out += 'Admin Controls: <button onClick="socket.emit(\'reload\')">Reload roomlist</button> <button onClick="socket.emit(\'update\')">Update log-viewer server</button> <button onClick="socket.emit(\'restart\')">Restart log-viewer server</button><div id="adminReply"></div><br/>';
 	out += '<div id="errorMessage"></div> <br/>';
 	switch (type) {
@@ -164,9 +173,11 @@ function buildPage(type, data, options) {
 			break;
 		default:
 			// Home page
-			out += 'Please select what file to view:<br /><br />';
+			out += 'Please select which room\'s logs to view:<br /><br />';
+			let found = false;
 			for (var type in rooms) {
 				if (!rooms[type].length) continue;
+				found = true;
 				if (type === 'groupchats') {
 					out += '<details class="header"><summary>' + type.substring(0, 1).toUpperCase() + type.substring(1) + ':</summary>';
 				} else {
@@ -178,6 +189,7 @@ function buildPage(type, data, options) {
 				if (type === 'groupchats') out += '</details>';
 				out += '<br/>';
 			}
+			if (!found) out += 'Access Denied - You cannot view any rooms.';
 	}
 	document.getElementsByTagName('body')[0].innerHTML = out;
 }

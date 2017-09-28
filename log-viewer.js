@@ -16,7 +16,7 @@ if (!FS('config/log-tokens.json').readTextIfExistsSync()) {
 exports.commands = {
 	logs: 'viewlogs',
 	viewlogs: function(target, room, user) {
-		if (!this.can('lock') || user.group === '*') return;
+		if (!user.trusted || user.group === '*') return this.errorReply('/viewlogs - Access Denied.');
 		if (!Config.logViewerLink) return this.errorReply('The log-viewer link was not provided in config.js. Please ask an Administrator to add it.');
 		return this.sendReply(`|raw|<a href="${Config.logViewerLink}">Log-Viewer</a>`);
 	},
@@ -27,7 +27,7 @@ exports.commands = {
 	gettoken: 'token',
 	generatetoken: 'token',
 	token: function(target, room, user) {
-		if (!this.can('lock') || user.group === '*') return;
+		if (!user.trusted || user.group === '*') return this.errorReply('/token - Access Denied.');
 		let split = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*".split('');
 		let token = '';
 		for (let i = 0; i < 16; i++) {

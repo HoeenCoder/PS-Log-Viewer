@@ -53,7 +53,7 @@ try {
 	process.exit(1);
 }
 
-const RANK_ORDER = ['%', '@', '&', '~'];
+const RANK_ORDER = ['', '+', '%', '@', '&', '~'];
 let UPDATE_LOCK = false;
 let authSockets = {};
 let socketIPs = {};
@@ -73,6 +73,7 @@ function toId(text) {
 function canView(room, id) {
 	if (!authSockets[id]) return false;
 	let rank = authSockets[id].rank;
+	let userid = authSockets[id].userid;
 	if (!room.startsWith('groupchat-')) room = toId(room);
 	if (!room) return false;
 	let existingRooms = Rooms.map(r => {
@@ -80,12 +81,13 @@ function canView(room, id) {
 	});
 	if (existingRooms.indexOf(room) > -1) {
 		room = Rooms[existingRooms.indexOf(room)];
+		if (room.auth && room.auth[userid] && room.auth[userid] !== '+' && room.auth[userid] !== '*') return true;
 		if (room.isPrivate && room.title !== 'Staff' && rank === '%') return false;
 		if (room.isPrivate === true && room.title !== 'Staff' && rank === '@') return false;
 		if (room.modjoin && (RANK_ORDER.indexOf(rank) < RANK_ORDER.indexOf(room.modjoin)) && rank !== '~') return false;
 	} else {
 		if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room)) return false;
-		if (room.startsWith('groupchat-')) return true;
+		if (room.startsWith('groupchat-') && (rank in {'%': 1, '@': 1, '&': 1, '~': 1})) return true;
 		if (rank !== '~') return false;
 	}
 	return true;
@@ -93,6 +95,7 @@ function canView(room, id) {
 
 function getRoomList(id) {
 	let rank = authSockets[id].rank;
+	let userid = authSockets[id].userid;
 	let out = {
 		'official': [],
 		'public': [],
@@ -101,12 +104,6 @@ function getRoomList(id) {
 		'deleted': [],
 		'groupchats': []
 	};
-	if (!(rank in {
-			'%': 1,
-			'@': 1,
-			'&': 1,
-			'~': 1
-		})) return out;
 	let rooms = fs.readdirSync(Config.serverDir + 'logs/chat');
 	let existingRooms = Rooms.map(r => {
 		return toId(r.title);
@@ -114,7 +111,7 @@ function getRoomList(id) {
 	for (let r = 0; r < rooms.length; r++) {
 		if (fs.statSync(Config.serverDir + 'logs/chat/' + rooms[r]).isFile()) continue;
 		if (rooms[r].startsWith('groupchat-')) {
-			out.groupchats.push(rooms[r]);
+			if (rank in {'%': 1, '@': 1, '&': 1, '~': 1}) out.groupchats.push(rooms[r]);
 			continue;
 		}
 		if (existingRooms.indexOf(rooms[r]) === -1) {
@@ -124,14 +121,14 @@ function getRoomList(id) {
 		let room = Rooms[existingRooms.indexOf(rooms[r])];
 		if (room.isPrivate) {
 			if (room.title === 'Staff') {
-				out.official.push(room.title);
+				if (rank in {'%': 1, '@': 1, '&': 1, '~': 1}) out.official.push(room.title);
 				continue;
 			}
 			if (room.title === 'Upper Staff' && (rank === '&' || rank === '~')) {
-				out.official.push(room.title);
+				if (rank in {'&': 1, '~': 1}) out.official.push(room.title);
 				continue;
 			}
-			if (rank === '%') continue;
+			if (!(rank in {'@': 1, '&': 1, '~': 1}) && (!room.auth || !room.auth[userid] || room.auth[userid] === '+' || room.auth[userid] === '*')) continue;
 			if (room.modjoin) {
 				if (RANK_ORDER.indexOf(rank) < RANK_ORDER.indexOf(room.modjoin) && rank !== '~') continue;
 			}
@@ -142,7 +139,7 @@ function getRoomList(id) {
 					out.hidden.push(room.title);
 				}
 			} else {
-				if (rank === '@') continue;
+				if ((!room.auth || !room.auth[userid]) && !(rank in {'&': 1, '~': 1})) continue;
 				if (room.isOfficial) {
 					out.official.push(room.title);
 				} else {
@@ -150,6 +147,7 @@ function getRoomList(id) {
 				}
 			}
 		} else {
+			if ((!rank || rank === '+') && (!room.auth || !room.auth[userid] || room.auth[userid] === '+' || room.auth[userid] === '*')) continue;
 			if (room.isOfficial) {
 				out.official.push(room.title);
 			} else {
@@ -166,7 +164,19 @@ function checkAuth(userid) {
 	for (let i = 0; i < auth.length; i++) {
 		if (toId(auth[i].split(',')[0]) === userid) return auth[i].split(',')[1];
 	}
-	return ' ';
+	return '';
+}
+
+function getRoomAuth(room, id) {
+	let userid = authSockets[id].userid;
+	for (let r in Rooms) {
+		if (toId(Rooms[r].title) === room) {
+			room = Rooms[r];
+			break;
+		}
+	}
+	if (!room || typeof room === "string" || !room.auth || !room.auth[userid] || room.auth[userid] === '+' || room.auth[userid] === '*') return '';
+	return room.auth[userid];
 }
 
 function checkToken(token, id, ip) {
@@ -174,12 +184,7 @@ function checkToken(token, id, ip) {
 	if (tokens[token]) {
 		if (!tokens[token].expires || (tokens[token].expires + Config.expires) < Date.now()) return null;
 		let rank = checkAuth(tokens[token].name);
-		if (!(rank in {
-				'%': 1,
-				'@': 1,
-				'&': 1,
-				'~': 1
-			})) return false;
+		if (rank === '*') rank = '';
 		if (Config.auth2 && ip !== tokens[token].ip) return false;
 		authSockets[id] = {
 			name: tokens[token].name,
@@ -211,12 +216,13 @@ io.on('connection', function(socket) {
 	socket.on('selectRoom', function(room) {
 		if (!room.startsWith('groupchat-')) room = toId(room);
 		if (canView(room, socket.id)) {
+			let roomRank = getRoomAuth(room, socket.id);
 			fs.readdir(Config.serverDir + 'logs/chat/' + room, (err, months) => {
 				if (err) {
 					console.log(err);
 					return socket.emit('error', 'An error has occured on the log-viwer server.');
 				}
-				socket.emit('pickMonth', JSON.stringify(months));
+				socket.emit('pickMonth', JSON.stringify(months), roomRank);
 			});
 		} else {
 			socket.emit('errorMsg', 'Access Denied.');
