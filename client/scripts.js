@@ -7,9 +7,9 @@ var token = '';
 var rooms = {};
 var curRoom = '';
 var curMonth = '',
-monthData = [];
+	monthData = [];
 var curDay = '',
-dayData = [];
+	dayData = [];
 
 socket.on('authValid', function(username, json) {
 	name = username;
@@ -77,7 +77,6 @@ socket.on('disconnect', function() {
 	refresh.classList += " roomLink";
 	refresh.innerText = 'Reload';
 	ed.parentNode.insertBefore(refresh, ed.nextSibling);
-
 });
 
 function toId(text) {
