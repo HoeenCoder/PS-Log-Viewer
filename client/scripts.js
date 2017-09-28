@@ -1,5 +1,5 @@
 var socket = io({
-	reconnection: false
+	reconnection: false,
 });
 var serverName = 'Pokemon Showdown'; // Change this to display a different name on the log viewer client
 document.getElementsByTagName('title')[0].innerText = serverName + ' Log Viewer';
@@ -51,7 +51,7 @@ socket.on('logOnly', function(msg, type) {
 	if (!type || !(type in {
 			"log": 1,
 			"warn": 1,
-			"error": 1
+			"error": 1,
 		})) type = 'log';
 	console[type](msg);
 });
@@ -84,7 +84,6 @@ socket.on('disconnect', function() {
 	refresh.classList += " roomLink";
 	refresh.innerText = 'Reload';
 	ed.parentNode.insertBefore(refresh, ed.nextSibling);
-
 });
 
 function toId(text) {
