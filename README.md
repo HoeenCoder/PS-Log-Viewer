@@ -55,6 +55,6 @@ Q: Can I contribute to / report a bug with this log viewer?
 A: Yes, feel free to open a new [issue](https://github.com/HoeenCoder/PS-Log-Viewer/issues) for bugs, and open a [pull request](https://github.com/HoeenCoder/PS-Log-Viewer/pulls) for contributing. You can also contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if i'm not offline) hit chat to talk to me.
 
 Q: My question isn't answered here.
-A: You can contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if i'm not offline) hit chat to talk to me. I'm not going to help you setup a pokemon-showdown server though, and probably won't help you setup this log viewer either. If I helped anyone I would have any time to do anything else.
+A: You can contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if i'm not offline) hit chat to talk to me. I'm not going to help you setup a pokemon-showdown server though, and probably won't help you setup this log viewer either. If I helped everyone I wouldn't have any time to do anything else.
 
 Special Thanks to anyone who has contributed to this!

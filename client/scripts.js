@@ -1,6 +1,9 @@
 var socket = io({
 	reconnection: false
 });
+var serverName = 'Pokemon Showdown'; // Change this to display a different name on the log viewer client
+document.getElementsByTagName('title')[0].innerText = serverName + ' Log Viewer';
+document.getElementById('serverTitle').innerText = serverName + ' Log Viewer';
 var rank = '';
 var name = '';
 var token = '';
@@ -18,7 +21,7 @@ socket.on('authValid', function(username, json) {
 		rooms = JSON.parse(json);
 	} catch (e) {
 		console.log(e);
-		document.getElementsByTagName('body')[0].innerHTML = '<span class="header">SpacialGaze Log Viewer</span><br /><br />Your logged in as ' + name + '.<br /><br />Please select what file to view:<br /><br />An error occured when parsing the room list JSON.';
+		document.getElementsByTagName('body')[0].innerHTML = '<span class="header">SpacialGaze Log Viewer</span><br /><br />You\'re logged in as ' + name + '.<br /><br />Please select what file to view:<br /><br />An error occured when parsing the room list JSON.';
 		return;
 	}
 	buildPage();
@@ -65,6 +68,10 @@ socket.on('pickDay', function(data) {
 
 socket.on('logs', function(txt, options) {
 	buildPage('logs', txt, options);
+});
+
+socket.on('search', function(result, lvl) {
+	buildPage('search', result, lvl)
 });
 
 socket.on('disconnect', function() {
@@ -129,8 +136,14 @@ function shiftDay(direction) {
 	socket.emit('selectDay', curDay, curMonth, curRoom);
 }
 
+function searchAll(level, reuse) {
+	if (reuse) socket.emit('searchAll', (level || 0), reuse);
+	var phrase = document.getElementById('searchAllInput').value;
+	socket.emit('searchAll', (level || 0), phrase);
+}
+
 function buildPage(type, data, options) {
-	var out = '<span class="header">SpacialGaze Log Viewer</span><br /><br />Your logged in as ' + name + '.<br /><br />';
+	var out = '<span class="header">' + serverName + ' Log Viewer</span><br /><br />You\'re logged in as ' + name + '.<br /><br />';
 	if (rank === '~') out += 'Admin Controls: <button onClick="socket.emit(\'reload\')">Reload roomlist</button> <button onClick="socket.emit(\'update\')">Update log-viewer server</button> <button onClick="socket.emit(\'restart\')">Restart log-viewer server</button><div id="adminReply"></div><br/>';
 	out += '<div id="errorMessage"></div> <br/>';
 	switch (type) {
@@ -162,8 +175,16 @@ function buildPage(type, data, options) {
 			out += data;
 			if (options.next) out += '<button class="shiftDay" id="nextDay" onClick="shiftDay(1)">Next Day</button><br/>';
 			break;
+		case 'search':
+			out += '<button class="roomLink" onClick="buildPage()">All Logs</button><br/><br/>';
+			var levels = [100, 300, 500, 1000, 10000];
+			out += 'Viewing search results (max ' + levels[options.level] + ' lines)<br/><br/>';
+			out += data.split('\n').join('<br/>');
+			if (options.level + 1 < levels.length) out += '<br/><button class="roomLink" onClick="searchAll(' + (options.level + 1) + ', \'' + options.phrase + '\')">Get more results</button>';
+			break;
 		default:
 			// Home page
+			out += '<input type="text" placeholder="search" length="50" max="50" id="searchAllInput"/><button class="roomLink" onClick="searchAll()">Search all logs</button><br/><br/>';
 			out += 'Please select what file to view:<br /><br />';
 			for (var type in rooms) {
 				if (!rooms[type].length) continue;

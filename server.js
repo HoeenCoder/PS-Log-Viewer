@@ -1,6 +1,6 @@
 /**
  * PS Log Viewer
- * Main file
+ * Main File
  * Use this file to start the server
  */
 'use strict';
@@ -54,6 +54,7 @@ try {
 }
 
 const RANK_ORDER = ['%', '@', '&', '~'];
+const BENCHMARKS = [100, 300, 500, 1000, 10000];
 let UPDATE_LOCK = false;
 let authSockets = {};
 let socketIPs = {};
@@ -68,6 +69,15 @@ function toId(text) {
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '';
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function escapeHTML(str) {
+	if (!str) return '';
+	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
+}
+
+function escapePhrase(str) {
+  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 function canView(room, id) {
@@ -194,6 +204,38 @@ function checkToken(token, id, ip) {
 	}
 }
 
+function search (id, level, phrase, room, month, day) {
+	phrase = toId(phrase);
+    if (!phrase) return 'No search phrase provided.';
+    if (!id || !authSockets[id]) return 'Access Denied - Unable to authenticate for search.';
+    if (!level) level = 0;
+    if (level > BENCHMARKS.length - 1) level = BENCHMARKS.length - 1;
+    if (room && !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
+    //if (room) return this.singleRoomSearch(id, level, room, month, day);
+    let list = fs.readdirSync(Config.serverDir + 'logs/chat');
+    let lines = [];
+    console.log(phrase);
+    let exp = new RegExp(escapePhrase(phrase), 'i');
+    for (let r = 0; r < list.length; r++) {
+    	if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r]).isFile()) continue;
+        if (!canView(list[r], id)) continue;
+        let months = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r]);
+        for (let m = 0; m < months.length; m++) {
+        	if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m]).isFile()) continue;
+            let days = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m]);
+            for (let d = 0; d < days.length; d++) {
+                let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
+                for (let l = 0; l < cur.length; l++) {
+                    if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
+                    if (exp.test(cur[l])) lines.push('[' + list[r] + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
+                }
+            }
+        }
+    }
+    if (!lines.length) lines.push('No Results');
+    return lines.join('\n');
+};
+
 app.use(express.static(path.resolve(__dirname, 'client')));
 
 io.on('connection', function(socket) {
@@ -253,11 +295,18 @@ io.on('connection', function(socket) {
 				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.next = true;
 				d.setDate(d.getDate() - 2);
 				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.prev = true;
-				socket.emit('logs', txt, options);
+				socket.emit('logs', escapeHTML(txt), options);
 			});
 		} else {
 			socket.emit('errorMsg', 'Access Denied.');
 		}
+	});
+	
+	// Searching commands
+	
+	socket.on('searchAll', function(level, phrase) {
+		let out = search(socket.id, (level || 0), phrase);
+		socket.emit('search', escapeHTML(out), {level: level, phrase: phrase});
 	});
 
 	// Admin commands
