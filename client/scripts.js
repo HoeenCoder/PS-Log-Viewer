@@ -1,5 +1,5 @@
 var socket = io({
-	reconnection: false
+	reconnection: false,
 });
 var rank = '';
 var name = '';
@@ -48,7 +48,7 @@ socket.on('logOnly', function(msg, type) {
 	if (!type || !(type in {
 			"log": 1,
 			"warn": 1,
-			"error": 1
+			"error": 1,
 		})) type = 'log';
 	console[type](msg);
 });
@@ -77,7 +77,6 @@ socket.on('disconnect', function() {
 	refresh.classList += " roomLink";
 	refresh.innerText = 'Reload';
 	ed.parentNode.insertBefore(refresh, ed.nextSibling);
-
 });
 
 function toId(text) {

@@ -99,13 +99,13 @@ function getRoomList(id) {
 		'hidden': [],
 		'secret': [],
 		'deleted': [],
-		'groupchats': []
+		'groupchats': [],
 	};
 	if (!(rank in {
 			'%': 1,
 			'@': 1,
 			'&': 1,
-			'~': 1
+			'~': 1,
 		})) return out;
 	let rooms = fs.readdirSync(Config.serverDir + 'logs/chat');
 	let existingRooms = Rooms.map(r => {
@@ -178,7 +178,7 @@ function checkToken(token, id, ip) {
 				'%': 1,
 				'@': 1,
 				'&': 1,
-				'~': 1
+				'~': 1,
 			})) return false;
 		if (Config.auth2 && ip !== tokens[token].ip) return false;
 		authSockets[id] = {
@@ -186,7 +186,7 @@ function checkToken(token, id, ip) {
 			userid: toId(tokens[token].name),
 			socketid: id,
 			rank: rank,
-			ip: ip
+			ip: ip,
 		};
 		return rank + tokens[token].name;
 	} else {
