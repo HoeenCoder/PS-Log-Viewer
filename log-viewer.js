@@ -17,6 +17,8 @@ exports.commands = {
 	logs: 'viewlogs',
 	viewlogs: function(target, room, user) {
 		if (!this.can('lock') || user.group === '*') return;
+		if (!this.runBroadcast()) return;
+		if ((room.id !== 'staff' && room.id !== 'upperstaff') && this.broadcasting) return;
 		if (!Config.logViewerLink) return this.errorReply('The log-viewer link was not provided in config.js. Please ask an Administrator to add it.');
 		return this.sendReply(`|raw|<a href="${Config.logViewerLink}">Log-Viewer</a>`);
 	},
