@@ -143,6 +143,10 @@ function shiftDay(direction) {
 function searchAll(level, reuse) {
 	if (reuse) socket.emit('searchAll', (level || 0), reuse);
 	var phrase = document.getElementById('searchAllInput').value;
+	let b = document.getElementById('searchAllButton');
+	if (b.classList === 'roomLinkDisabled') return;
+	b.classList = 'roomLinkDisabled';
+	b.innerText = 'Searching...';
 	socket.emit('searchAll', (level || 0), phrase);
 }
 
@@ -188,7 +192,7 @@ function buildPage(type, data, options) {
 			break;
 		default:
 			// Home page
-			out += '<input type="text" placeholder="search" length="50" max="50" id="searchAllInput"/><button class="roomLink" onClick="searchAll()">Search all logs</button><br/><br/>';
+			out += '<input type="text" placeholder="search" length="50" max="50" id="searchAllInput"/><button id="searchAllButton" class="roomLink" onClick="searchAll()">Search all logs</button><br/><br/>';
 			out += 'Please select what file to view:<br /><br />';
 			for (var type in rooms) {
 				if (!rooms[type].length) continue;
