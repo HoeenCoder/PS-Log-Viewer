@@ -90,10 +90,10 @@ function escapePhrase(str) {
 function chatfilter(data) {
 	if (Array.isArray(data)) {
 		data = data.filter((line) => {
-			return !(/\|userstats\|/.test(line) || /\|(j|J)\|/.test(line) || /\|(l|L)\|/.test(line) || /\|(N|n)\|/.test(line) && !/\|(chat|c:|c)\|/.test(line));
+			return !(/\|(userstats|j|J|l|L|n|N|unlink|notify)\|/.test(line) && !/\|(chat|c:|c)\|/.test(line));
 		});
 	} else if (typeof data === 'string') {
-		return (/\|userstats\|/.test(data) || /\|(j|J)\|/.test(data) || /\|(l|L)\|/.test(data) || /\|(N|n)\|/.test(data) && !/\|(chat|c:|c)\|/.test(data));
+		return (/\|(userstats|j|J|l|L|n|N|unlink|notify)\|/.test(data) && !/\|(chat|c:|c)\|/.test(data));
 	}
 	return data;
 }
