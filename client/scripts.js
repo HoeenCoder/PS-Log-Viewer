@@ -134,7 +134,7 @@ function shiftDay(direction) {
 	if (d.getMonth() + 1 < 10) {
 		curMonth = d.getFullYear() + '-0' + (d.getMonth() + 1);
 	} else {
-		curMonth = d.getFullYear() + '-' + d.getMonth() + 1;
+		curMonth = d.getFullYear() + '-' + (d.getMonth() + 1);
 	}
 	curDay = curMonth + '-' + d.getDate() + '.txt';
 	socket.emit('selectDay', curDay, curMonth, curRoom);

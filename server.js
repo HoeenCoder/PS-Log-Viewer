@@ -313,9 +313,9 @@ io.on('connection', function(socket) {
 				let daySplit = day.split('-');
 				let d = new Date(parseInt(daySplit[0]), parseInt(daySplit[1]) - 1, parseInt(daySplit[2]));
 				d.setDate(d.getDate() + 1);
-				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.next = true;
+				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + d.getMonth()) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + d.getDate() + '.txt'))) options.next = true;
 				d.setDate(d.getDate() - 2);
-				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.prev = true;
+				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + d.getMonth()) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + d.getDate() + '.txt'))) options.prev = true;
 				txt = txt.split('\n');
 				txt = chatfilter(txt);
 				txt = txt.join('\n');
