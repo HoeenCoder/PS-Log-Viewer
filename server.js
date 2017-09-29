@@ -240,7 +240,7 @@ app.use(express.static(path.resolve(__dirname, 'client')));
 
 io.on('connection', function(socket) {
 	socket.on('authenticate', function(token) {
-		let ip = socket.request.connection.remoteAddress;
+		let ip = socket.request.connection.remoteAddress.substring(7);
 		let result = checkToken(token, socket.id, ip);
 		if (result) {
 			socket.emit('authValid', result, getRoomList(socket.id));
