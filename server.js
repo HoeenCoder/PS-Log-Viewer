@@ -214,7 +214,6 @@ function search (id, level, phrase, room, month, day) {
     //if (room) return this.singleRoomSearch(id, level, room, month, day);
     let list = fs.readdirSync(Config.serverDir + 'logs/chat');
     let lines = [];
-    console.log(phrase);
     let exp = new RegExp(escapePhrase(phrase), 'i');
     for (let r = 0; r < list.length; r++) {
     	if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r]).isFile()) continue;
@@ -227,6 +226,7 @@ function search (id, level, phrase, room, month, day) {
                 let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
                 for (let l = 0; l < cur.length; l++) {
                     if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
+                    if ((/\|userstats\|/.test(cur[l]) || /\|(j|J)\|/.test(cur[l]) || /\|(l|L)\|/.test(cur[l]) && !/\|(c:|c)\|/.test(cur[l]))) continue;
                     if (exp.test(cur[l])) lines.push('[' + list[r] + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
                 }
             }
@@ -295,6 +295,11 @@ io.on('connection', function(socket) {
 				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.next = true;
 				d.setDate(d.getDate() - 2);
 				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.prev = true;
+				txt = txt.split('\n');
+				txt = txt.filter((line) => {
+					return !(/\|userstats\|/.test(line) || /\|(j|J)\|/.test(line) || /\|(l|L)\|/.test(line) && !/\|(c:|c)\|/.test(line));
+				});
+				txt = txt.join('\n');
 				socket.emit('logs', escapeHTML(txt), options);
 			});
 		} else {
