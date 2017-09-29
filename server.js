@@ -80,6 +80,24 @@ function escapePhrase(str) {
   return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
+/**
+ * Chat Filter Function
+ * Filters out |userstats| |j| |l| and |n|
+ * if an array is provided, returns the filtered array
+ * if a string is provided, returns true if it would be filtered, false if not.
+ * otherwise returns the data unchanged
+ */
+function chatfilter(data) {
+	if (Array.isArray(data)) {
+		data = data.filter((line) => {
+			return !(/\|userstats\|/.test(line) || /\|(j|J)\|/.test(line) || /\|(l|L)\|/.test(line) || /\|(N|n)\|/.test(line) && !/\|(chat|c:|c)\|/.test(line));
+		});
+	} else if (typeof data === 'string') {
+		return (/\|userstats\|/.test(data) || /\|(j|J)\|/.test(data) || /\|(l|L)\|/.test(data) || /\|(N|n)\|/.test(data) && !/\|(chat|c:|c)\|/.test(data));
+	}
+	return data;
+}
+
 function canView(room, id) {
 	if (!authSockets[id]) return false;
 	let rank = authSockets[id].rank;
@@ -204,7 +222,7 @@ function checkToken(token, id, ip) {
 	}
 }
 
-function search (id, level, phrase, room, month, day) {
+function search(id, level, phrase, room, month, day) {
 	phrase = toId(phrase);
     if (!phrase) return 'No search phrase provided.';
     if (!id || !authSockets[id]) return 'Access Denied - Unable to authenticate for search.';
@@ -226,7 +244,7 @@ function search (id, level, phrase, room, month, day) {
                 let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
                 for (let l = 0; l < cur.length; l++) {
                     if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
-                    if ((/\|userstats\|/.test(cur[l]) || /\|(j|J)\|/.test(cur[l]) || /\|(l|L)\|/.test(cur[l]) && !/\|(c:|c)\|/.test(cur[l]))) continue;
+                    if (chatfilter(cur[l])) continue;
                     if (exp.test(cur[l])) lines.push('[' + list[r] + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
                 }
             }
@@ -296,9 +314,7 @@ io.on('connection', function(socket) {
 				d.setDate(d.getDate() - 2);
 				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1) + '-' + d.getDate() + '.txt'))) options.prev = true;
 				txt = txt.split('\n');
-				txt = txt.filter((line) => {
-					return !(/\|userstats\|/.test(line) || /\|(j|J)\|/.test(line) || /\|(l|L)\|/.test(line) && !/\|(c:|c)\|/.test(line));
-				});
+				txt = chatfilter(txt);
 				txt = txt.join('\n');
 				socket.emit('logs', escapeHTML(txt), options);
 			});
