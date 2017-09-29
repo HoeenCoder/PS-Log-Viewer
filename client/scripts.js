@@ -1,9 +1,8 @@
 var socket = io({
 	reconnection: false,
 });
-var serverName = 'Pokemon Showdown'; // Change this to display a different name on the log viewer client
-document.getElementsByTagName('title')[0].innerText = serverName + ' Log Viewer';
-document.getElementById('serverTitle').innerText = serverName + ' Log Viewer';
+var serverName = 'Pokemon Showdown';
+socket.emit('getName');
 var rank = '';
 var name = '';
 var token = '';
@@ -54,6 +53,12 @@ socket.on('logOnly', function(msg, type) {
 			"error": 1,
 		})) type = 'log';
 	console[type](msg);
+});
+
+socket.on('serverName', function(name) {
+	serverName = name;
+	document.getElementsByTagName('title')[0].innerText = name + ' Log Viewer';
+	document.getElementById('serverTitle').innerText = name + ' Log Viewer';
 });
 
 socket.on('pickMonth', function(data) {

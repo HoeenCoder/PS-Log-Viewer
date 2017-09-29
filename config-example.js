@@ -16,3 +16,6 @@ exports.expires = 1000 * 60 * 30; // 30 minutes
 
 // 2 Factor Authentication (verify that the IP that created the token is the one using it)
 exports.auth2 = true;
+
+// Server Name - The name of the server displayed in the log viewer
+exports.serverName = 'Pokemon Showdown';

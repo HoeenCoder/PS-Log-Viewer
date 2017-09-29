@@ -185,6 +185,9 @@ function getRoomList(id) {
 			}
 		}
 	}
+	for (let type in out) {
+		out[type].sort();
+	}
 	return JSON.stringify(out);
 }
 
@@ -372,6 +375,10 @@ io.on('connection', function(socket) {
 
 	// Other
 
+	socket.on('getName', function() {
+		// Only reply if a server name is set, leave as default if not.
+		if (Config.serverName) socket.emit('serverName', Config.serverName.toString());
+	});
 	socket.on('disconnect', function() {
 		if (authSockets[socket.id]) delete authSockets[socket.id];
 	});
