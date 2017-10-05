@@ -47,11 +47,7 @@ socket.on('errorMsg', function(msg) {
 });
 
 socket.on('logOnly', function(msg, type) {
-	if (!type || !(type in {
-			"log": 1,
-			"warn": 1,
-			"error": 1,
-		})) type = 'log';
+	if (!type || !(type in {"log": 1, "warn": 1, "error": 1})) type = 'log';
 	console[type](msg);
 });
 
