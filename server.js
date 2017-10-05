@@ -121,20 +121,8 @@ function canView(room, id) {
 
 function getRoomList(id) {
 	let rank = authSockets[id].rank;
-	let out = {
-		'official': [],
-		'public': [],
-		'hidden': [],
-		'secret': [],
-		'deleted': [],
-		'groupchats': [],
-	};
-	if (!(rank in {
-			'%': 1,
-			'@': 1,
-			'&': 1,
-			'~': 1,
-		})) return out;
+	let out = {'official': [], 'public': [], 'hidden': [], 'secret': [], 'deleted': [], 'groupchats': []};
+	if (!(rank in {'%': 1, '@': 1, '&': 1, '~': 1})) return out;
 	let rooms = fs.readdirSync(Config.serverDir + 'logs/chat');
 	let existingRooms = Rooms.map(r => {
 		return toId(r.title);
@@ -205,20 +193,9 @@ function checkToken(token, id, ip) {
 	if (tokens[token]) {
 		if (!tokens[token].expires || (tokens[token].expires + Config.expires) < Date.now()) return null;
 		let rank = checkAuth(tokens[token].name);
-		if (!(rank in {
-			'%': 1,
-			'@': 1,
-			'&': 1,
-			'~': 1,
-		})) return false;
+		if (!(rank in {'%': 1, '@': 1, '&': 1, '~': 1})) return false;
 		if (Config.auth2 && ip !== tokens[token].ip) return false;
-		authSockets[id] = {
-			name: tokens[token].name,
-			userid: toId(tokens[token].name),
-			socketid: id,
-			rank: rank,
-			ip: ip,
-		};
+		authSockets[id] = {name: tokens[token].name, userid: toId(tokens[token].name), socketid: id, rank: rank, ip: ip};
 		return rank + tokens[token].name;
 	} else {
 		return false;
