@@ -206,11 +206,11 @@ function checkToken(token, id, ip) {
 		if (!tokens[token].expires || (tokens[token].expires + Config.expires) < Date.now()) return null;
 		let rank = checkAuth(tokens[token].name);
 		if (!(rank in {
-				'%': 1,
-				'@': 1,
-				'&': 1,
-				'~': 1,
-			})) return false;
+			'%': 1,
+			'@': 1,
+			'&': 1,
+			'~': 1,
+		})) return false;
 		if (Config.auth2 && ip !== tokens[token].ip) return false;
 		authSockets[id] = {
 			name: tokens[token].name,
@@ -227,34 +227,34 @@ function checkToken(token, id, ip) {
 
 function search(id, level, phrase, room, month, day) {
 	phrase = toId(phrase);
-    if (!phrase) return 'No search phrase provided.';
-    if (!id || !authSockets[id]) return 'Access Denied - Unable to authenticate for search.';
-    if (!level) level = 0;
-    if (level > BENCHMARKS.length - 1) level = BENCHMARKS.length - 1;
-    if (room && !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
-    //if (room) return this.singleRoomSearch(id, level, room, month, day);
-    let list = fs.readdirSync(Config.serverDir + 'logs/chat');
-    let lines = [];
-    let exp = new RegExp(escapePhrase(phrase), 'i');
-    for (let r = 0; r < list.length; r++) {
-    	if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r]).isFile()) continue;
-        if (!canView(list[r], id)) continue;
-        let months = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r]);
-        for (let m = 0; m < months.length; m++) {
+	if (!phrase) return 'No search phrase provided.';
+	if (!id || !authSockets[id]) return 'Access Denied - Unable to authenticate for search.';
+	if (!level) level = 0;
+	if (level > BENCHMARKS.length - 1) level = BENCHMARKS.length - 1;
+	if (room && !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
+	//if (room) return this.singleRoomSearch(id, level, room, month, day);
+	let list = fs.readdirSync(Config.serverDir + 'logs/chat');
+	let lines = [];
+	let exp = new RegExp(escapePhrase(phrase), 'i');
+	for (let r = 0; r < list.length; r++) {
+		if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r]).isFile()) continue;
+		if (!canView(list[r], id)) continue;
+		let months = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r]);
+		for (let m = 0; m < months.length; m++) {
         	if (fs.statSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m]).isFile()) continue;
-            let days = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m]);
-            for (let d = 0; d < days.length; d++) {
-                let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
-                for (let l = 0; l < cur.length; l++) {
-                    if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
-                    if (chatfilter(cur[l])) continue;
-                    if (exp.test(cur[l])) lines.push('[' + list[r] + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
-                }
-            }
-        }
-    }
-    if (!lines.length) lines.push('No Results');
-    return lines.join('\n');
+			let days = fs.readdirSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m]);
+			for (let d = 0; d < days.length; d++) {
+				let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + list[r] + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
+				for (let l = 0; l < cur.length; l++) {
+					if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
+					if (chatfilter(cur[l])) continue;
+					if (exp.test(cur[l])) lines.push('[' + list[r] + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
+				}
+			}
+		}
+	}
+	if (!lines.length) lines.push('No Results');
+	return lines.join('\n');
 };
 
 app.use(express.static(path.resolve(__dirname, 'client')));
