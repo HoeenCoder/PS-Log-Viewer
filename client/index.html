@@ -1,65 +1,68 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Pokemon Showdown Log Viewer</title>
-    <style>
-      html, body {
-	      font: 10pt Verdana, sans-serif;
-      }
-      body {
-        overflow: scroll;
-      }
-      #authError {
-        color: red;
-        font-weight: bold;
-      }
-      #errorMessage {
-        color: red;
-        font-weight: bold;
-        display: inline-block;
-      }
-      .shiftDay {
-        display: block;
-        font-size: 11pt;
-        padding: 8px 16px;
-        width: 400px;
-        text-align: center;
-        text-decoration: none;
-        background: #EEEEF6;
-        color: #2222AA;
-        border: 1px solid #CCCCEE;
-        cursor: pointer;
-      }
-      .header {
-        font-size: 1.3em;
-      }
-      .roomLink {
-        color: blue;
-        border: none;
-        background: none;
-        text-decoration: underline;
-        cursor: pointer;
-        margin: 3px;
-      }
-      .roomLinkDisabled {
-        color: grey;
-        border: none;
-        background: none;
-        text-decoration: none;
-        cursor: disabled;
-        margin: 3px;
-      }
-    </style>
-  </head>
-  <body>
-    <span class="header" id="serverTitle">Pokemon Showdown Log Viewer</span>
-    <br /><br />
-    Please authenticate yourself: <br />
-    <form id="authForm">
-      <input type="password" id="authToken" placeholder="token" size="15"/> <input type="submit" value="Authenticate" />
-    </form><br />
-    <div id="authError"></div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/scripts.js"></script>
-  </body>
+	<head>
+		<title>Pokemon Showdown Log Viewer</title>
+		<style>
+			html, body {
+				font: 10pt Verdana, sans-serif;
+			}
+			body {
+				overflow: scroll;
+			}
+			#authError {
+				color: red;
+				font-weight: bold;
+			}
+			#errorMessage {
+				color: red;
+				font-weight: bold;
+				display: inline-block;
+			}
+			.shiftDay {
+				display: block;
+				font-size: 11pt;
+				padding: 8px 16px;
+				width: 400px;
+				text-align: center;
+				text-decoration: none;
+				background: #EEEEF6;
+				color: #2222AA;
+				border: 1px solid #CCCCEE;
+				cursor: pointer;
+			}
+			.header {
+				font-size: 1.3em;
+			}
+			.roomLink {
+				color: blue;
+				border: none;
+				background: none;
+				text-decoration: underline;
+				cursor: pointer;
+				margin: 3px;
+			}
+			.roomLinkDisabled {
+				color: grey;
+				border: none;
+				background: none;
+				text-decoration: none;
+				cursor: disabled;
+				margin: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<span class="header" id="serverTitle">Pokemon Showdown Log Viewer</span>
+		<br />
+		<br />
+		Please authenticate yourself:
+		<br />
+		<form id="authForm">
+			<input type="password" id="authToken" placeholder="token" size="15"/> <input type="submit" value="Authenticate" />
+		</form>
+		<br />
+		<div id="authError"></div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/scripts.js"></script>
+	</body>
 </html>
