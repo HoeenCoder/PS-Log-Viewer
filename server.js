@@ -208,8 +208,7 @@ function search(id, level, phrase, room, month, day) {
 	if (!id || !authSockets[id]) return 'Access Denied - Unable to authenticate for search.';
 	if (!level) level = 0;
 	if (level > BENCHMARKS.length - 1) level = BENCHMARKS.length - 1;
-	if (room && !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
-	//if (room) return this.singleRoomSearch(id, level, room, month, day);
+	if (room) return searchRoom(id, level, phrase, room, month, day);
 	let list = fs.readdirSync(Config.serverDir + 'logs/chat');
 	let lines = [];
 	let exp = new RegExp(escapePhrase(phrase), 'i');
@@ -233,6 +232,28 @@ function search(id, level, phrase, room, month, day) {
 	if (!lines.length) lines.push('No Results');
 	return lines.join('\n');
 };
+
+function searchRoom(id, level, phrase, room, month, day) {
+	if (!room.startsWith('groupchat-')) room = toId(room);
+	if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room) || !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
+	let lines = [];
+	let exp = new RegExp(escapePhrase(phrase), 'i');
+	let months = fs.readdirSync(Config.serverDir + 'logs/chat/' + room);
+    for (let m = 0; m < months.length; m++) {
+    	if (fs.statSync(Config.serverDir + 'logs/chat/' + room + '/' + months[m]).isFile()) continue;
+        let days = fs.readdirSync(Config.serverDir + 'logs/chat/' + room + '/' + months[m]);
+        for (let d = 0; d < days.length; d++) {
+            let cur = fs.readFileSync(Config.serverDir + 'logs/chat/' + room + '/' + months[m] + '/' + days[d], 'utf-8').split('\n');
+            for (let l = 0; l < cur.length; l++) {
+                if (lines.length >= BENCHMARKS[level]) return lines.join('\n');
+                if (chatfilter(cur[l])) continue;
+                if (exp.test(cur[l])) lines.push('[' + room + ' on ' + days[d].substring(0, days[d].length - 4) + '] ' + cur[l]);
+            }
+        }
+    }
+	if (!lines.length) lines.push('No Results');
+    return lines.join('\n');
+}
 
 app.use(express.static(path.resolve(__dirname, 'client')));
 
@@ -305,9 +326,9 @@ io.on('connection', function(socket) {
 	
 	// Searching commands
 	
-	socket.on('searchAll', function(level, phrase) {
-		let out = search(socket.id, (level || 0), phrase);
-		socket.emit('search', escapeHTML(out), {level: level, phrase: phrase});
+	socket.on('searchAll', function(level, phrase, room) {
+		let out = search(socket.id, (level || 0), phrase, (room || null));
+		socket.emit('search', escapeHTML(out), {level: level, phrase: phrase, room: room});
 	});
 
 	// Admin commands

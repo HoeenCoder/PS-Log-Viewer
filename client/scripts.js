@@ -146,12 +146,23 @@ function searchAll(level, reuse) {
 	socket.emit('searchAll', (level || 0), phrase);
 }
 
+function searchRoom(room, level, reuse) {
+	if (reuse) socket.emit('searchAll', (level || 0), reuse, room);
+	var phrase = document.getElementById('search' + room + 'Input').value;
+	let b = document.getElementById('search' + room + 'Button');
+	if (b.classList === 'roomLinkDisabled') return;
+	b.classList = 'roomLinkDisabled';
+	b.innerText = 'Searching...';
+	socket.emit('searchAll', (level || 0), phrase, room);
+}
+
 function buildPage(type, data, options) {
 	var out = '<span class="header">' + serverName + ' Log Viewer</span><br /><br />You\'re logged in as ' + name + '.<br /><br />';
 	if (rank === '~') out += 'Admin Controls: <button onClick="socket.emit(\'reload\')">Reload roomlist</button> <button onClick="socket.emit(\'update\')">Update log-viewer server</button> <button onClick="socket.emit(\'restart\')">Restart log-viewer server</button><div id="adminReply"></div><br/>';
 	out += '<div id="errorMessage"></div> <br/>';
 	switch (type) {
 		case 'month':
+			out += '<input type="text" placeholder="search" length="50" max="50" id="search' + curRoom + 'Input"/><button id="search' + curRoom + 'Button" class="roomLink" onClick="searchRoom(\'' + curRoom + '\')">Search room logs</button><br/><br/>';
 			out += '<button class="roomLink" onClick="buildPage()">All Logs</button> &lt;&lt; <b>' + curRoom + '</b><br/><br/>';
 			out += '<span class="header">' + curRoom + '</span><br/><br/>';
 			out += 'Please select which month\'s logs to view.<br/><br/>';
@@ -182,9 +193,9 @@ function buildPage(type, data, options) {
 		case 'search':
 			out += '<button class="roomLink" onClick="buildPage()">All Logs</button><br/><br/>';
 			var levels = [100, 300, 500, 1000, 10000];
-			out += 'Viewing search results (max ' + levels[options.level] + ' lines)<br/><br/>';
+			out += 'Viewing search results for ' + (options.room ? 'room ' + options.room : 'all rooms') + ' (max ' + levels[options.level] + ' lines)<br/><br/>';
 			out += data.split('\n').join('<br/>');
-			if (options.level + 1 < levels.length) out += '<br/><button class="roomLink" onClick="searchAll(' + (options.level + 1) + ', \'' + options.phrase + '\')">Get more results</button>';
+			if (options.level + 1 < levels.length) out += '<br/><button class="roomLink" onClick="search' + (options.room ? 'Room' : 'All') + '(' + (options.level + 1) + ', \'' + options.phrase + '\'' + (options.room ? ', ' + options.room : '') + ')">Get more results</button>';
 			break;
 		default:
 			// Home page
