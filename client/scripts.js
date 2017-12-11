@@ -211,6 +211,7 @@ function buildPage(type, data, options) {
 			}
 	}
 	document.getElementsByTagName('body')[0].innerHTML = out;
+	window.scrollTo(0, 0);
 }
 
 document.getElementById('authForm').addEventListener('submit', function(e) {
