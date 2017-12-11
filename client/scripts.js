@@ -1,6 +1,7 @@
 var socket = io({
 	reconnection: false,
 });
+
 var serverName = 'Pokemon Showdown';
 socket.emit('getName');
 var rank = '';
@@ -12,6 +13,7 @@ var curMonth = '',
 	monthData = [];
 var curDay = '',
 	dayData = [];
+var file = '';
 
 socket.on('authValid', function(username, json) {
 	name = username;
@@ -127,12 +129,20 @@ function shiftDay(direction) {
 	var split = curDay.split('-');
 	var d = new Date(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]));
 	d.setDate(d.getDate() + direction);
+	if (parseInt(split[2]) === 30 && !file) d.setDate(d.getDate() - direction);
 	if (d.getMonth() + 1 < 10) {
 		curMonth = d.getFullYear() + '-0' + (d.getMonth() + 1);
 	} else {
 		curMonth = d.getFullYear() + '-' + (d.getMonth() + 1);
 	}
-	curDay = curMonth + '-' + d.getDate() + '.txt';
+	let day = d.getDate();
+	if (parseFloat(split[2]) === 31 && direction === -1) day = '30';
+	if (parseFloat(split[2]) === 31 && direction === 1) day = '1';
+	if (parseInt(split[2]) === 30 && direction === 1 && file) day = '31';
+	if (parseInt(split[2]) === 1 && direction === -1 && file) day = '31';
+	if (parseInt(split[2]) === 30 && direction === 1 && file) curMonth = d.getFullYear() + (d.getMonth() < 10 ? ('-0' + d.getMonth()) : ('-' + d.getMonth()));
+	if (day < 10) day = '0' + day;
+	curDay = curMonth + '-' + day + '.txt';
 	socket.emit('selectDay', curDay, curMonth, curRoom);
 }
 
@@ -188,6 +198,7 @@ function buildPage(type, data, options) {
 			if (options.prev) out += '<button class="shiftDay" id="prevDay" onClick="shiftDay(-1)">Previous Day</button>';
 			data = data.split('\n').join('<br/>');
 			out += data;
+			if (options.file) file = options.file;
 			if (options.next) out += '<button class="shiftDay" id="nextDay" onClick="shiftDay(1)">Next Day</button><br/>';
 			break;
 		case 'search':
