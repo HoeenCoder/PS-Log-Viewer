@@ -13,7 +13,7 @@ try {
 } catch (e) {
 	console.error('Dependencies Unmet! Automatically installing them...');
 	require('child_process').execSync('npm install --production', {
-		stdio: 'inherit'
+		stdio: 'inherit',
 	});
 	console.log('Please restart the server.');
 	process.exit(1);
@@ -77,7 +77,7 @@ function escapeHTML(str) {
 }
 
 function escapePhrase(str) {
-  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 /**
@@ -89,7 +89,7 @@ function escapePhrase(str) {
  */
 function chatfilter(data) {
 	if (Array.isArray(data)) {
-		data = data.filter((line) => {
+		data = data.filter(line => {
 			return !(/\|(userstats|j|J|l|L|n|N|unlink|notify)\|/.test(line) && !/\|(chat|c:|c)\|/.test(line));
 		});
 	} else if (typeof data === 'string') {
@@ -310,13 +310,18 @@ io.on('connection', function(socket) {
 				let options = {};
 				let daySplit = day.split('-');
 				let d = new Date(parseInt(daySplit[0]), parseInt(daySplit[1]) - 1, parseInt(daySplit[2]));
+				let curDay = d.getDate();
+				let nextDay = '01';
+				let file = fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1)) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + '31.txt'));
 				d.setDate(d.getDate() + 1);
-				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1)) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + d.getDate() + '.txt'))) options.next = true;
+				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1)) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + (curDay === 1 && parseInt(daySplit[2]) === 31 ? (nextDay) : (d.getDate() < 10) ? '0' + d.getDate() : d.getDate()) + '.txt'))) options.next = true;
+				let prevDay = '30';
 				d.setDate(d.getDate() - 2);
-				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1)) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + d.getDate() + '.txt'))) options.prev = true;
+				if (fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1)) + '/' + (d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1)) + '-' + (curDay === 1 && parseInt(daySplit[2]) === 31 ? (prevDay) : (d.getDate() < 10) ? '0' + d.getDate() : d.getDate()) + '.txt'))) options.prev = true;
 				txt = txt.split('\n');
 				txt = chatfilter(txt);
 				txt = txt.join('\n');
+				if (file && parseInt(daySplit[2]) === 30 || file && parseInt(daySplt[2]) === 1) options.file = file;
 				socket.emit('logs', escapeHTML(txt), options);
 			});
 		} else {
