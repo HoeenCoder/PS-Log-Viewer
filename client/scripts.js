@@ -125,14 +125,9 @@ function shiftDay(direction) {
 	direction = parseInt(direction);
 	if (isNaN(direction)) return console.error("shiftDay(): direction is NaN");
 	var split = curDay.split('-');
-	var d = new Date(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]));
-	d.setDate(d.getDate() + direction);
-	if (d.getMonth() + 1 < 10) {
-		curMonth = d.getFullYear() + '-0' + (d.getMonth() + 1);
-	} else {
-		curMonth = d.getFullYear() + '-' + (d.getMonth() + 1);
-	}
-	curDay = curMonth + '-' + d.getDate() + '.txt';
+	var d = new Date(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]) + direction);
+	curMonth = d.toISOString().substring(0, 7);
+	curDay = d.toISOString().substring(0, 10) + '.txt';
 	socket.emit('selectDay', curDay, curMonth, curRoom);
 }
 
