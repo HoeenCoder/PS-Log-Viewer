@@ -20,7 +20,7 @@ socket.on('authValid', function(username, json) {
 		rooms = JSON.parse(json);
 	} catch (e) {
 		console.log(e);
-		document.getElementsByTagName('body')[0].innerHTML = '<span class="header">SpacialGaze Log Viewer</span><br /><br />You\'re logged in as ' + name + '.<br /><br />Please select what file to view:<br /><br />An error occured when parsing the room list JSON.';
+		document.getElementsByTagName('body')[0].innerHTML = '<span class="header">Pokemon Showdown Log Viewer</span><br /><br />You\'re logged in as ' + name + '.<br /><br />Please select what file to view:<br /><br />An error occured when parsing the room list JSON.';
 		return;
 	}
 	buildPage();

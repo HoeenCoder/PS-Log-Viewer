@@ -353,8 +353,8 @@ io.on('connection', function(socket) {
 	});
 	socket.on('update', function() {
 		if (authSockets[socket.id] && authSockets[socket.id].rank === '~') {
+			if (UPDATE_LOCK) return socket.emit('adminReply', 'The log-viewer server is already updating! (no further action taken)');
 			console.log('~' + authSockets[socket.id].name + ' started a log-viewer server update.');
-			if (UPDATE_LOCK) socket.emit('adminReply', 'The log-viewer server is already updating! (no further action taken)');
 			UPDATE_LOCK = true;
 			let exec = require('child_process').exec;
 			exec(`git fetch && git rebase --autostash FETCH_HEAD`, (error, stdout, stderr) => {
