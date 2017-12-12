@@ -101,7 +101,7 @@ function chatfilter(data) {
 function canView(room, id) {
 	if (!authSockets[id]) return false;
 	let rank = authSockets[id].rank;
-	if (!room.startsWith('groupchat-')) room = toId(room);
+	if (!room.startsWith('groupchat-') && !room.startsWith('help-')) room = toId(room);
 	if (!room) return false;
 	let existingRooms = Rooms.map(r => {
 		return toId(r.title);
@@ -113,7 +113,7 @@ function canView(room, id) {
 		if (room.modjoin && (RANK_ORDER.indexOf(rank) < RANK_ORDER.indexOf(room.modjoin)) && rank !== '~') return false;
 	} else {
 		if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room)) return false;
-		if (room.startsWith('groupchat-')) return true;
+		if (room.startsWith('groupchat-') || room.startsWith('help-')) return true;
 		if (rank !== '~') return false;
 	}
 	return true;
@@ -121,7 +121,7 @@ function canView(room, id) {
 
 function getRoomList(id) {
 	let rank = authSockets[id].rank;
-	let out = {'official': [], 'public': [], 'hidden': [], 'secret': [], 'deleted': [], 'groupchats': []};
+	let out = {'official': [], 'public': [], 'hidden': [], 'secret': [], 'deleted': [], 'groupchats': [], 'helprooms': []};
 	if (!(rank in {'%': 1, '@': 1, '&': 1, '~': 1})) return out;
 	let rooms = fs.readdirSync(Config.serverDir + 'logs/chat');
 	let existingRooms = Rooms.map(r => {
@@ -131,6 +131,9 @@ function getRoomList(id) {
 		if (fs.statSync(Config.serverDir + 'logs/chat/' + rooms[r]).isFile()) continue;
 		if (rooms[r].startsWith('groupchat-')) {
 			out.groupchats.push(rooms[r]);
+			continue;
+		} else if (rooms[r].startsWith('help-')) {
+			out.helprooms.push(rooms[r]);
 			continue;
 		}
 		if (existingRooms.indexOf(rooms[r]) === -1) {
@@ -234,7 +237,7 @@ function search(id, level, phrase, room, month, day) {
 };
 
 function searchRoom(id, level, phrase, room, month, day) {
-	if (!room.startsWith('groupchat-')) room = toId(room);
+	if (!room.startsWith('groupchat-') && !room.startsWith('help-')) room = toId(room);
 	if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room) || !canView(room, id)) return 'Access Denied for searching logs of room "' + room + '"';
 	let lines = [];
 	let exp = new RegExp(escapePhrase(phrase), 'i');
@@ -270,7 +273,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('selectRoom', function(room) {
-		if (!room.startsWith('groupchat-')) room = toId(room);
+		if (!room.startsWith('groupchat-') && !room.startsWith('help-')) room = toId(room);
 		if (canView(room, socket.id)) {
 			fs.readdir(Config.serverDir + 'logs/chat/' + room, (err, months) => {
 				if (err) {
@@ -284,7 +287,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('selectMonth', function(month, room) {
-		if (!room.startsWith('groupchat-')) room = toId(room);
+		if (!room.startsWith('groupchat-') && !room.startsWith('help-')) room = toId(room);
 		if (canView(room, socket.id)) {
 			if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month)) return socket.emit('errorMsg', 'Invalid month: ' + month);
 			fs.readdir(Config.serverDir + 'logs/chat/' + room + '/' + month, (err, days) => {
@@ -299,7 +302,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('selectDay', function(day, month, room) {
-		if (!room.startsWith('groupchat-')) room = toId(room);
+		if (!room.startsWith('groupchat-') && !room.startsWith('help-')) room = toId(room);
 		if (canView(room, socket.id)) {
 			if (!fs.existsSync(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + day)) return socket.emit('errorMsg', 'Invalid day: ' + day);
 			fs.readFile(Config.serverDir + 'logs/chat/' + room + '/' + month + '/' + day, "utf-8", (err, txt) => {

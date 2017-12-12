@@ -104,7 +104,7 @@ function authenticate() {
 
 function pickRoom(e) {
 	curRoom = e.title;
-	if (e.title.startsWith('groupchat-')) {
+	if (e.title.startsWith('groupchat-') || e.title.startsWith('help-')) {
 		socket.emit('selectRoom', e.title);
 	} else {
 		socket.emit('selectRoom', e.id);
@@ -198,7 +198,7 @@ function buildPage(type, data, options) {
 			out += 'Please select what file to view:<br /><br />';
 			for (var type in rooms) {
 				if (!rooms[type].length) continue;
-				if (type === 'groupchats') {
+				if (type === 'groupchats' || type === 'helprooms') {
 					out += '<details class="header"><summary>' + type.substring(0, 1).toUpperCase() + type.substring(1) + ':</summary>';
 				} else {
 					out += '<span class="header">' + type.substring(0, 1).toUpperCase() + type.substring(1) + ' rooms:</span><br/><br/>';
@@ -206,7 +206,7 @@ function buildPage(type, data, options) {
 				for (var r = 0; r < rooms[type].length; r++) {
 					out += '<button class="roomLink" title="' + rooms[type][r] + '" id="' + toId(rooms[type][r]) + '" onClick="pickRoom(this)">' + rooms[type][r] + '</button><br/>';
 				}
-				if (type === 'groupchats') out += '</details>';
+				if (type === 'groupchats' || type === 'helprooms') out += '</details>';
 				out += '<br/>';
 			}
 	}
