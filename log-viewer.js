@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const FS = require('../fs.js');
+const FS = require('../lib/fs.js');
 
 //Check to see if JSON for tokens exists
 if (!FS('config/log-tokens.json').readTextIfExistsSync()) {
