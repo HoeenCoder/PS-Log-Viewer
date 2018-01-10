@@ -5,7 +5,7 @@
 'use strict';
 
 // Port - The port the log-viewer server will run on.
-exports.port = 8080;
+exports.port = 8000;
 
 // serverDir - the base directory for the server, this should point
 // from the location of server.js to the PS server's base directory
