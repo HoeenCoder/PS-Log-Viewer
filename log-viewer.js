@@ -9,12 +9,13 @@
 const FS = require('../lib/fs.js');
 
 //Check to see if JSON for tokens exists
-if (!FS('config/log-tokens.json').readTextIfExistsSync()) {
+if (!FS('config/log-tokens.json').readIfExistsSync()) {
 	FS('config/log-tokens.json').write("{}");
 }
 
 exports.commands = {
 	logs: 'viewlogs',
+	logviewer: 'viewlogs',
 	viewlogs: function(target, room, user) {
 		if (!this.can('lock') || user.group === '*') return;
 		if (!this.runBroadcast()) return;
