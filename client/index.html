@@ -58,8 +58,11 @@
 		Please authenticate yourself:
 		<br />
 		<form id="authForm">
-			<input type="password" id="authToken" placeholder="token" size="15"/> <input type="submit" value="Authenticate" />
+			<label for="Auth Token"><b>Token</b>:</label>
+			<input type="password" name="Auth Token" id="authToken" placeholder="token" size="15"/> <input type="submit" value="Authenticate" />
 		</form>
+		You can get a login token by using <code>/token</code> on the pokemon showdown server this log viewer is linked to.
+		<br />
 		<br />
 		<div id="authError"></div>
 		<script src="/socket.io/socket.io.js"></script>
