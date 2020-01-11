@@ -36,7 +36,9 @@ Q: The server won't start. It keeps saying `No logs found! Is the server file pa
 pokemon-showdown >
   config/
   logs/
-  app.js
+  pokemon-showdown
+  server/ >
+    index.ts
 log-viewer >
   client/
   server.js
@@ -49,12 +51,12 @@ Q: My rank is global bot on the server and I can't generate a token / access the
 - A: The log viewer doesn't support the bot rank at this time, its meant to be used by humans.
 
 Q: Which ranks can view what logs?
-A: Drivers (%) can view Public room logs. Moderators (@) can view Public and Hidden room logs. Leaders (&) can view Public, Hidden, and Secret room logs. Administrators (~) can view Public, Hidden, Secret, and Deleted room logs. All ranks can also view Groupchat room logs regardless of if the room is expired or not.
+A: Drivers (%) can view Public room logs. Moderators (@) can view Public and Hidden room logs. Leaders (&) can view Public, Hidden, and Secret room logs. Administrators (~) can view Public, Hidden, Secret, and Deleted room logs. All ranks can also view Groupchat and Help Ticket room logs regardless of if the room is expired or not.
 
 Q: Can I contribute to / report a bug with this log viewer?
 - A: Yes, feel free to open a new [issue](https://github.com/HoeenCoder/PS-Log-Viewer/issues) for bugs, and open a [pull request](https://github.com/HoeenCoder/PS-Log-Viewer/pulls) for contributing. You can also contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if I'm not offline) hit chat to talk to me.
 
 Q: My question isn't answered here.
-- A: You can contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if I'm not offline) hit chat to talk to me. I'm not going to help you setup a pokemon-showdown server though, and probably won't help you setup this log viewer either. If I helped everyone I wouldn't have any time to do anything else.
+- A: You can contact me on [Pokemon Showdown](https://play.pokemonshowdown.com), I use the name `HoeenHero`, just hit the `Find a User` button, type in my username and (if I'm not offline) hit chat to talk to me. I'm not going to help you setup a Pokemon Showdown server though, and probably won't help you setup this log viewer either. If I helped everyone I wouldn't have any time to do anything else.
 
 Special Thanks to anyone who has contributed to this!

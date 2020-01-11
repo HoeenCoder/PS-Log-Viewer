@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const FS = require('../lib/fs.js');
+const FS = require('../../.lib-dist/fs').FS;
 
 //Check to see if JSON for tokens exists
 if (!FS('config/log-tokens.json').readIfExistsSync()) {
@@ -45,7 +45,7 @@ exports.commands = {
 			return self.errorReply('An error occured in token generation.');
 		}
 		for (let i in json) {
-			if (toId(json[i].name) === user.userid) delete json[i];
+			if (toID(json[i].name) === user.userid) delete json[i];
 		}
 		json[token] = {
 			name: user.name,

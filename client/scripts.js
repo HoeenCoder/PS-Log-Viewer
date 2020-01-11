@@ -1,3 +1,5 @@
+'use strict';
+
 var socket = io({
 	reconnection: false,
 });
